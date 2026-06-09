@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarbonKeeper</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f5; color: #18181b; max-width: 600px; margin: 40px auto; padding: 20px; }
+        h1 { font-size: 24px; margin-bottom: 8px; }
+        p { color: #52525b; margin-bottom: 24px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 24px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 16px; }
+        button { padding: 12px 24px; background-color: #18181b; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #3f3f46; }
+        .result-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: none; }
+        .co2-value { font-size: 32px; font-weight: bold; color: #e11d48; }
+        .tip { background: #dcfce7; color: #166534; padding: 12px; border-radius: 6px; margin-top: 16px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>Log your activity</h1>
+    <p>Type what you did in plain English. No forms required.</p>
+    <div class="input-group">
+        <input type="text" id="activityInput" placeholder="e.g., I drove 20km to work today">
+        <button onclick="logActivity()" id="submitBtn">Track</button>
+    </div>
+    <div class="result-card" id="resultCard">
+        <div style="text-transform: uppercase; font-size: 12px; color: #71717a;" id="category"></div>
+        <div style="font-weight: 600; margin-top: 4px;" id="summary"></div>
+        <div style="margin-top: 16px;">Estimated Impact:</div>
+        <div class="co2-value"><span id="co2"></span> kg CO₂</div>
+        <div class="tip" id="tip"></div>
+    </div>
+    <script>
+        async function logActivity() {
+            const input = document.getElementById('activityInput').value;
+            const btn = document.getElementById('submitBtn');
+            const card = document.getElementById('resultCard');
+            if (!input) return;
+            btn.innerText = 'Calculating...';
+            btn.disabled = true;
+            try {
+                const response = await fetch('/api/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ activity: input })
+                });
+                const data = await response.json();
+                if(data.error) throw new Error(data.error);
+                document.getElementById('category').innerText = data.category;
+                document.getElementById('summary').innerText = data.activity_summary;
+                document.getElementById('co2').innerText = data.co2_kg;
+                document.getElementById('tip').innerText = "💡 Tip: " + data.reduction_tip;
+                card.style.display = 'block';
+            } catch (err) {
+                alert('Error processing activity: ' + err.message);
+            } finally {
+                btn.innerText = 'Track';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
