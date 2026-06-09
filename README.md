@@ -1,5 +1,4 @@
 # Carbon_Keeper
-# CarbonKeeper
 
 CarbonKeeper is an AI-powered personal carbon footprint tracker. Instead of using complex forms or dropdowns, users log their activities in plain English (e.g., "I drove 20km to work today"), and the application uses the Google Gemini API to instantly calculate estimated CO₂ emissions, categorize the activity, and provide personalized reduction tips.
 
